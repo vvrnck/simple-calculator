@@ -7,6 +7,7 @@ package calculadora;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -60,7 +61,7 @@ public class Calculadora extends HttpServlet {
             out.println("</head>");
             out.println("<body>");
             out.println(""
-                    + "<form action='result.jsp'>"
+                    + "<form action='/Calculadora/Calculadora' method='post'>"
                         + "<label>Operador 1: </label>"
                         + "<input type='number' name='op1' />"
                         + "<br>"
@@ -109,7 +110,35 @@ public class Calculadora extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        
+        Cookie c[] = request.getCookies(); 
+        //c.length gives the cookie count 
+        for(int i=0;i<c.length;i++){  
+           if (c[i].getName().equals("acessos")) {
+               request.setAttribute("acessos", Integer.parseInt(c[i].getValue()) + 1);
+           }
+        }
+        
+        String op1 = request.getParameter("op1");
+        String op2 = request.getParameter("op2");
+        String op = request.getParameter("operation");
+        
+        float total;
+        if (op.equals("+")) {
+            total = Integer.parseInt(op1) + Integer.parseInt(op2);
+        } else if (op.equals("-")) {
+            total = Integer.parseInt(op1) - Integer.parseInt(op2);
+        } else if (op.equals("x")) {
+            total = Integer.parseInt(op1) * Integer.parseInt(op2);
+        } else {
+            total = Integer.parseInt(op1) / Integer.parseInt(op2);
+        }
+        String result = op1 + op + op2 + " = " + total;
+        System.out.print(result);
+        
+        request.setAttribute("result", result);
+        RequestDispatcher rd = request.getRequestDispatcher("/result.jsp");
+        rd.forward(request, response);
     }
 
     /**
